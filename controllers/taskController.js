@@ -62,14 +62,14 @@ router.post('/', (req, res) => {
             });
         }
         else{
-            Todo.findOneAndUpdate({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {
+            Todo.updateOne({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {
                 if (!err) { res.redirect('task/list'); }
                 else {
                     if (err.name == 'ValidationError') {
                         handleValidationError(err, req.body);
                         res.render("task/addOrEdit", {
                             viewTitle: 'Update Task',
-                            employee: req.body
+                            task: req.body
                         });
                     }
                     else
@@ -134,6 +134,15 @@ router.get('/:id', (req, res) => {
                 task: finalDoc
             });
         }
+    });
+});
+
+router.get('/delete/:id', (req, res) => {
+    Todo.deleteOne({_id:req.params.id}, (err, doc) => {
+        if (!err) {
+            res.redirect('/task/list');
+        }
+        else { console.log('Error in task delete :' + err); }
     });
 });
 
