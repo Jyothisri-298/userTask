@@ -1,12 +1,19 @@
-var express = require('express');
-var db = require('./models/db');
+const express = require('express');
+const db = require('./models/db');
+const path = require('path');
+const exphbs = require('express-handlebars');
 const taskController = require('./controllers/taskController');
-var app = express();
+const app = express();
 
+
+app.set('views', path.join(__dirname, '/views/'));
+app.engine('hbs', exphbs({ extname: 'hbs', defaultLayout: 'mainLayout', layoutsDir: __dirname + '/views/layouts/' }));
+app.set('view engine', 'hbs');
 
 app.get('/', (req,res) => {
     res.send('Hello');
 });
+
 
 app.use('/task', taskController);
 
