@@ -1,5 +1,5 @@
 var express = require('express');
-
+var db = require('./models/db');
 var app = express();
 
 
