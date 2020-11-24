@@ -37,7 +37,7 @@ router.post('/', (req, res) => {
         var obj = {
             title: req.body.title,
             desc: req.body.desc,
-            target_dt: req.body.date,
+            target_dt: new Date(req.body.date).toLocaleDateString(),
             status: req.body.status
         }
         if (req.file) {
@@ -48,17 +48,35 @@ router.post('/', (req, res) => {
         } else {
             obj.media = null;
         }
-        Todo.create(obj, (err, item) => {
-            if (err && err.name == "ValidationError") {
-                handleValidationError(err, req.body);
-                res.render("task/addOrEdit", {
-                    viewTitle: "Insert Task",
-                    task: req.body
-                })
-            } else {
-                res.redirect('task/list');
-            }
-        });
+        if(!req.body._id){
+            Todo.create(obj, (err, item) => {
+                if (err && err.name == "ValidationError") {
+                    handleValidationError(err, req.body);
+                    res.render("task/addOrEdit", {
+                        viewTitle: "Insert Task",
+                        task: req.body
+                    })
+                } else {
+                    res.redirect('task/list');
+                }
+            });
+        }
+        else{
+            Todo.findOneAndUpdate({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {
+                if (!err) { res.redirect('task/list'); }
+                else {
+                    if (err.name == 'ValidationError') {
+                        handleValidationError(err, req.body);
+                        res.render("task/addOrEdit", {
+                            viewTitle: 'Update Task',
+                            employee: req.body
+                        });
+                    }
+                    else
+                        console.log('Error during record update : ' + err);
+                }
+            });
+        }
     });
 })
 
@@ -78,7 +96,7 @@ router.get('/list', (req, res) => {
                     title:doc.title,
                     desc:doc.desc,
                     media: doc.media,
-                    target_dt: doc.target_dt,
+                    target_dt: new Date(doc.target_dt).toLocaleDateString(),
                     status: doc.status
                  }
             })
@@ -91,6 +109,33 @@ router.get('/list', (req, res) => {
         }
     })
 })
+
+router.get('/:id', (req, res) => {
+    Todo.findById(req.params.id, (err, doc) => {
+        if (!err) {
+            //let finalDocs = docs.map(doc=>{
+                if(doc.media.data){
+                    doc.media.data = doc.media.data.toString('base64');
+                    doc.media.contentType2 = doc.media.contentType.split("/")[0]
+                }
+                else{
+                    doc.media.contentType2 = "img"
+                }
+                let finalDoc =  {
+                    _id:doc._id,
+                    title:doc.title,
+                    desc:doc.desc,
+                    media: doc.media,
+                    target_dt: new Date(doc.target_dt).toLocaleDateString(),
+                    status: doc.status
+                 }
+            res.render("task/addOrEdit", {
+                viewTitle: "Update Task",
+                task: finalDoc
+            });
+        }
+    });
+});
 
 function handleValidationError(err, body) {
     for (field in err.errors) {
