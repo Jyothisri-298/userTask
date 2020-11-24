@@ -1,0 +1,11 @@
+{
+  "name": "user_task",
+  "version": "1.0.0",
+  "description": "Users task list",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jyothi Sri",
+  "license": "ISC"
+}
