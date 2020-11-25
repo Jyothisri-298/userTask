@@ -1,26 +1,26 @@
-var mongoose = require( 'mongoose' );
-var Schema   = mongoose.Schema;
- 
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
 var Todo = new Schema({
-    title : {
+    title: {
         type: String,
         required: "Title is required !"
     },
-    desc : {
+    desc: {
         type: String,
         required: "Description is required !"
     },
-    media : { 
-        data: Buffer, 
-        contentType: String 
+    media: {
+        data: Buffer,
+        contentType: String
     },
-    target_dt : {
+    target_dt: {
         type: Date,
         required: "Target date is required !"
     },
-    status : {
+    status: {
         type: String
     }
 });
- 
-mongoose.model( 'Todo', Todo );
+
+mongoose.model('Todo', Todo);

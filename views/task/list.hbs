@@ -1,6 +1,6 @@
 <h3><a class="btn btn-secondary" href="/task"><i class="fa fa-plus"></i> Create New</a> Task List
-{{!-- <button class="btn btn-danger" type="submit" style="float:right">Delete</button> --}}
-     <form method="post" action="/task/search">
+    {{!-- <button class="btn btn-danger" type="submit" style="float:right">Delete</button> --}}
+    <form method="post" action="/task/search">
         <div class="input-group add-on">
             <input type="text" class="form-control" name="search" placeholder="Search title" value="{{task.search}}">
             <button type="submit" class="btn btn-info"><i class="fa fa-search"></i></button>
@@ -10,7 +10,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
-           
+
             <th>Title</th>
             <th>Description</th>
             <th>Media</th>
@@ -20,24 +20,46 @@
         </tr>
     </thead>
     <tbody>
-       {{!-- <form action="/task/deleteLists" method="POST"></form> --}}
+        {{!-- <form action="/task/deleteLists" method="POST"></form> --}}
         {{#each list}}
         <tr>
-             <form action="/task/deleteLists" method="post">
-            {{!-- <th><input type="checkbox" id="checkbox" name="tasklist"></th> --}}
-            <td> <input type="checkbox" name="check[]" id="check[]" value={{this._id}}></td>
-            <td>{{this.title}}</td>
-            <td>{{this.desc}}</td>
-            <td><{{this.media.contentType2}} src="data:{{this.media.contentType}};base64,{{this.media.data}}" width="200" height="100" alt="No media"></td>
-            <td>{{this.target_dt}}</td>
-            <td>{{this.status}}</td>
-            <td>
-                <a href="/task/{{this._id}}"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
-                <a href="/task/delete/{{this._id}}" onclick="return confirm('Confirm to delete this task ?');"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></a>
-            </td>
+            <form action="/task/deleteLists" method="post">
+                {{!-- <th><input type="checkbox" id="checkbox" name="tasklist"></th> --}}
+                <td> <input type="checkbox" name="check[]" id="check[]" value={{this._id}}></td>
+                <td>{{this.title}}</td>
+                <td>{{this.desc}}</td>
+                <td>
+                    <{{this.media.contentType2}} src="data:{{this.media.contentType}};base64,{{this.media.data}}"
+                        width="200" height="100" alt="No media">
+                </td>
+                <td>{{this.target_dt}}</td>
+                <td>{{this.status}}</td>
+                <td>
+                    <a href="/task/{{this._id}}"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
+                    <a href="/task/delete/{{this._id}}" onclick="return confirm('Confirm to delete this task ?');"><i
+                            class="fa fa-trash fa-lg" aria-hidden="true"></i></a>
+                </td>
         </tr>
         {{/each}}
-         <button class = "btn btn-danger" style="float:right">Delete</button>
+        <button class="btn btn-danger" style="float:right">Delete</button>
         </form>
     </tbody>
 </table>
+<ul class="pagination justify-content-center">
+    {{#checkIf this.currentPage "==" "1"}}
+    {{#checkIf this.pages ">" "1"}}
+    <li class="page-item"><a class="page-link" href="/task/list/{{math this.currentPage "+" 1}}">Next</a></li>
+    {{/checkIf}}
+    {{else}}
+    {{#checkIf this.currentPage "<" this.pages}}
+    <li class="page-item"><a class="page-link" href="/task/list/{{math this.currentPage "-" 1}}">Previous</a></li>
+    <li class="page-item"><a class="page-link" href="/task/list/{{math this.currentPage "+" 1}}">Next</a></li>
+    {{else}}
+    {{#checkIf this.currentPage "==" this.pages}}
+    {{#checkIf this.pages ">" 1}}
+    <li class="page-item"><a class="page-link" href="/task/list/{{math this.currentPage "-" 1}}">Previous</a></li>
+    {{/checkIf}}
+    {{/checkIf}}
+    {{/checkIf}}
+    {{/checkIf}}
+</ul>

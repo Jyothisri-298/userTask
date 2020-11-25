@@ -1,4 +1,3 @@
-
 <h3>{{viewTitle}}</h3>
 
 <form method="post" action="/task" enctype="multipart/form-data">
@@ -22,13 +21,13 @@
         </div>
         <div class="form-group col-md-6">
             <label>Target Date</label>
-            <input type="text" class="form-control" name="date"  value="{{task.target_dt}}">
+            <input type="text" class="form-control" name="date" value="{{task.target_dt}}">
             <div class="text-danger">
-            {{task.dateError}}</div>
+                {{task.dateError}}</div>
         </div>
         <div class="form-group col-md-6">
             <label>Status</label>
-            <select type="text"  class="form-control" name="status"  value="{{task.status}}">
+            <select type="text" class="form-control" name="status" value="{{task.status}}">
                 <option value="todo" autofocus>Todo</option>
                 <option value="in-progress">In-Progress</option>
                 <option value="done">Done</option>

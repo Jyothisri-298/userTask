@@ -6,6 +6,7 @@ var multer = require('multer');
 const mongoose = require('mongoose');
 const Todo = mongoose.model("Todo");
 
+//To store files in uploads folder
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = "uploads"
@@ -32,6 +33,8 @@ router.get('/', (req, res) => {
     })
 })
 
+
+//For stroing task details into Database
 router.post('/', (req, res) => {
     upload(req, res, function (err) {
         var obj = {
@@ -48,7 +51,7 @@ router.post('/', (req, res) => {
         } else {
             obj.media = null;
         }
-        if(!req.body._id){
+        if (!req.body._id) {
             Todo.create(obj, (err, item) => {
                 if (err && err.name == "ValidationError") {
                     handleValidationError(err, req.body);
@@ -60,75 +63,124 @@ router.post('/', (req, res) => {
                     res.redirect('task/list');
                 }
             });
-        }
-        else{
-            Todo.updateOne({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {
-                if (!err) { res.redirect('task/list'); }
-                else {
+        } else {
+            Todo.updateOne({
+                _id: req.body._id
+            }, req.body, {
+                new: true
+            }, (err, doc) => {
+                if (!err) {
+                    res.redirect('task/list');
+                } else {
                     if (err.name == 'ValidationError') {
                         handleValidationError(err, req.body);
                         res.render("task/addOrEdit", {
                             viewTitle: 'Update Task',
                             task: req.body
                         });
-                    }
-                    else
+                    } else
                         console.log('Error during record update : ' + err);
                 }
             });
         }
     });
 })
+//To get all Task Lists
+router.get('/list', async (req, res) => {
+    const resPerPage = 20;
+    const page = req.params.page || 1;
 
-router.get('/list', (req, res) => {
-    Todo.find((err,docs) => {
-        if(!err){
-            let finalDocs = docs.map(doc=>{
-                if(doc.media.data){
-                    doc.media.data = doc.media.data.toString('base64');
-                    doc.media.contentType2 = doc.media.contentType.split("/")[0]
-                }
-                else{
-                    doc.media.contentType2 = "img"
-                }
-                return {
-                    _id:doc._id,
-                    title:doc.title,
-                    desc:doc.desc,
-                    media: doc.media,
-                    target_dt: new Date(doc.target_dt).toLocaleDateString(),
-                    status: doc.status
-                 }
-            })
-            res.render("task/list",{
-                list: finalDocs
-            })
-        }
-        else{
-            console.log("Error in retrieving task list :" + err);
-        }
-    })
+    try {
+        const numOfTasks = await Todo.countDocuments({});
+
+        const docs = await Todo.find({})
+            .skip((resPerPage * page) - resPerPage)
+            .limit(resPerPage);
+        let finalDocs = docs.map(doc => {
+            if (doc.media.data) {
+                doc.media.data = doc.media.data.toString('base64');
+                doc.media.contentType2 = doc.media.contentType.split("/")[0]
+            } else {
+                doc.media.contentType2 = "img"
+            }
+            return {
+                _id: doc._id,
+                title: doc.title,
+                desc: doc.desc,
+                media: doc.media,
+                target_dt: new Date(doc.target_dt).toLocaleDateString(),
+                status: doc.status
+            }
+        });
+        res.render("task/list", {
+            list: finalDocs,
+            currentPage: page,
+            pages: Math.ceil(numOfTasks / resPerPage),
+            numOfResults: numOfTasks
+        })
+
+    } catch (err) {
+        throw new Error(err);
+    }
+});
+
+//For Task Pagination
+router.get('/list/:page', async (req, res) => {
+    const resPerPage = 20;
+    const page = req.params.page || 1;
+
+    try {
+        const numOfTasks = await Todo.countDocuments({});
+
+        const docs = await Todo.find({})
+            .skip((resPerPage * page) - resPerPage)
+            .limit(resPerPage);
+        let finalDocs = docs.map(doc => {
+            if (doc.media.data) {
+                doc.media.data = doc.media.data.toString('base64');
+                doc.media.contentType2 = doc.media.contentType.split("/")[0]
+            } else {
+                doc.media.contentType2 = "img"
+            }
+            return {
+                _id: doc._id,
+                title: doc.title,
+                desc: doc.desc,
+                media: doc.media,
+                target_dt: new Date(doc.target_dt).toLocaleDateString(),
+                status: doc.status
+            }
+        });
+        res.render("task/list", {
+            list: finalDocs,
+            currentPage: page,
+            pages: Math.ceil(numOfTasks / resPerPage),
+            numOfResults: numOfTasks
+        })
+
+    } catch (err) {
+        throw new Error(err);
+    }
 })
 
+//To update the particular Task
 router.get('/:id', (req, res) => {
     Todo.findById(req.params.id, (err, doc) => {
         if (!err) {
-            //let finalDocs = docs.map(doc=>{
-                if(doc.media.data){
-                    doc.media.data = doc.media.data.toString('base64');
-                    doc.media.contentType2 = doc.media.contentType.split("/")[0]
-                }
-                else{
-                    doc.media.contentType2 = "img"
-                }
-                let finalDoc =  {
-                    _id:doc._id,
-                    title:doc.title,
-                    desc:doc.desc,
-                    media: doc.media,
-                    target_dt: new Date(doc.target_dt).toLocaleDateString(),
-                    status: doc.status
-                 }
+            if (doc.media.data) {
+                doc.media.data = doc.media.data.toString('base64');
+                doc.media.contentType2 = doc.media.contentType.split("/")[0]
+            } else {
+                doc.media.contentType2 = "img"
+            }
+            let finalDoc = {
+                _id: doc._id,
+                title: doc.title,
+                desc: doc.desc,
+                media: doc.media,
+                target_dt: new Date(doc.target_dt).toLocaleDateString(),
+                status: doc.status
+            }
             res.render("task/addOrEdit", {
                 viewTitle: "Update Task",
                 task: finalDoc
@@ -137,55 +189,69 @@ router.get('/:id', (req, res) => {
     });
 });
 
+
+//To delete the particular Task
 router.get('/delete/:id', (req, res) => {
-    Todo.deleteOne({_id:req.params.id}, (err, doc) => {
+    Todo.deleteOne({
+        _id: req.params.id
+    }, (err, doc) => {
         if (!err) {
             res.redirect('/task/list');
+        } else {
+            console.log('Error in task delete :' + err);
         }
-        else { console.log('Error in task delete :' + err); }
     });
 });
 
+//Searching using title
 router.post('/search', (req, res) => {
-    Todo.find({title:{'$regex':req.body.search, '$options': 'i'}},(err,docs) => {
-        if(!err){
-            let finalDocs = docs.map(doc=>{
-                if(doc.media.data){
+    Todo.find({
+        title: {
+            '$regex': req.body.search,
+            '$options': 'i'
+        }
+    }, (err, docs) => {
+        if (!err) {
+            let finalDocs = docs.map(doc => {
+                if (doc.media.data) {
                     doc.media.data = doc.media.data.toString('base64');
                     doc.media.contentType2 = doc.media.contentType.split("/")[0]
-                }
-                else{
+                } else {
                     doc.media.contentType2 = "img"
                 }
                 return {
-                    _id:doc._id,
-                    title:doc.title,
-                    desc:doc.desc,
+                    _id: doc._id,
+                    title: doc.title,
+                    desc: doc.desc,
                     media: doc.media,
                     target_dt: new Date(doc.target_dt).toLocaleDateString(),
                     status: doc.status
-                 }
+                }
             })
-            res.render("task/list",{
+            res.render("task/list", {
                 list: finalDocs
             })
-        }
-        else{
+        } else {
             console.log("Error in retrieving task list :" + err);
         }
     })
 })
 
-router.post('/deleteLists',(req,res) => {
+//To delete multiple tasks
+router.post('/deleteLists', (req, res) => {
     let records = req.body.check;
-   Todo.deleteMany({ _id: records }, function(err, result){
-    if (!err) {
-        res.redirect('/task/list');
-    }
-    else { console.log('Error in task delete :' + err); }
-   })
+    Todo.deleteMany({
+        _id: records
+    }, function (err, result) {
+        if (!err) {
+            res.redirect('/task/list');
+        } else {
+            console.log('Error in task delete :' + err);
+        }
+    })
 })
 
+//error handling
 function handleValidationError(err, body) {
     for (field in err.errors) {
         switch (err.errors[field].path) {
