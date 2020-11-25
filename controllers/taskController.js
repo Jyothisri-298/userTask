@@ -146,6 +146,36 @@ router.get('/delete/:id', (req, res) => {
     });
 });
 
+router.post('/search', (req, res) => {
+    Todo.find({title:{'$regex':req.body.search, '$options': 'i'}},(err,docs) => {
+        if(!err){
+            let finalDocs = docs.map(doc=>{
+                if(doc.media.data){
+                    doc.media.data = doc.media.data.toString('base64');
+                    doc.media.contentType2 = doc.media.contentType.split("/")[0]
+                }
+                else{
+                    doc.media.contentType2 = "img"
+                }
+                return {
+                    _id:doc._id,
+                    title:doc.title,
+                    desc:doc.desc,
+                    media: doc.media,
+                    target_dt: new Date(doc.target_dt).toLocaleDateString(),
+                    status: doc.status
+                 }
+            })
+            res.render("task/list",{
+                list: finalDocs
+            })
+        }
+        else{
+            console.log("Error in retrieving task list :" + err);
+        }
+    })
+})
+
 function handleValidationError(err, body) {
     for (field in err.errors) {
         switch (err.errors[field].path) {
