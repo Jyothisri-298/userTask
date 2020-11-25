@@ -176,6 +176,16 @@ router.post('/search', (req, res) => {
     })
 })
 
+router.post('/deleteLists',(req,res) => {
+    let records = req.body.check;
+   Todo.deleteMany({ _id: records }, function(err, result){
+    if (!err) {
+        res.redirect('/task/list');
+    }
+    else { console.log('Error in task delete :' + err); }
+   })
+})
+
 function handleValidationError(err, body) {
     for (field in err.errors) {
         switch (err.errors[field].path) {

@@ -1,4 +1,5 @@
 <h3><a class="btn btn-secondary" href="/task"><i class="fa fa-plus"></i> Create New</a> Task List
+{{!-- <button class="btn btn-danger" type="submit" style="float:right">Delete</button> --}}
      <form method="post" action="/task/search">
         <div class="input-group add-on">
             <input type="text" class="form-control" name="search" placeholder="Search title" value="{{task.search}}">
@@ -9,6 +10,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+           
             <th>Title</th>
             <th>Description</th>
             <th>Media</th>
@@ -18,11 +20,15 @@
         </tr>
     </thead>
     <tbody>
+       {{!-- <form action="/task/deleteLists" method="POST"></form> --}}
         {{#each list}}
         <tr>
+             <form action="/task/deleteLists" method="post">
+            {{!-- <th><input type="checkbox" id="checkbox" name="tasklist"></th> --}}
+            <td> <input type="checkbox" name="check[]" id="check[]" value={{this._id}}></td>
             <td>{{this.title}}</td>
             <td>{{this.desc}}</td>
-            <td><{{this.media.contentType2}} src="data:{{this.media.contentType}};base64,{{this.media.data}}" width="200" height="100" alt="no media"></td>
+            <td><{{this.media.contentType2}} src="data:{{this.media.contentType}};base64,{{this.media.data}}" width="200" height="100" alt="No media"></td>
             <td>{{this.target_dt}}</td>
             <td>{{this.status}}</td>
             <td>
@@ -31,5 +37,7 @@
             </td>
         </tr>
         {{/each}}
+         <button class = "btn btn-danger" style="float:right">Delete</button>
+        </form>
     </tbody>
 </table>
